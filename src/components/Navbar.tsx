@@ -2,19 +2,18 @@
 import React, { useState } from 'react';
 import CreateUserForm from '../forms/CreateUserForm';
 import { Link } from 'react-router-dom';
+import useThemeStore from '../store/themeStore';
 
 interface NavbarProps {
-  addUser: (user: any) => void; // Prop to handle adding a new user
+  addUser: (user: any) => void; // Required prop
 }
 
 const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
-  const [dark, setDark] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const toggleDarkMode = (): void => {
-    setDark(!dark);
-    document.documentElement.classList.toggle('dark');
-  };
+  const { isDarkMode, toggleDarkMode } = useThemeStore();
+
+  console.log(`[Navbar] Dark Mode Enabled: ${isDarkMode}`); // Debugging
 
   return (
     <div className="w-full bg-[#3251D0] dark:bg-gray-900 flex items-center justify-between p-4">
@@ -36,7 +35,13 @@ const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
         </Link>
 
         {/* Dark Mode Toggle */}
-        <button onClick={toggleDarkMode} className="p-2">
+        <button
+          onClick={() => {
+            console.log('[Navbar] Toggling Dark Mode'); // Debugging
+            toggleDarkMode();
+          }}
+          className="p-2"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

@@ -14,13 +14,6 @@ interface ApiResponseUser {
   dateOfBirth: string;
 }
 
-interface UserCardUser {
-  id: string;
-  name: string;
-  email: string;
-  status: 'active' | 'locked';
-  dob: string;
-}
 
 const UserGrid: React.FC = () => {
   const {
@@ -103,6 +96,7 @@ const UserGrid: React.FC = () => {
 
   return (
     <>
+
       {/* Edit Modal */}
       {isEditModalOpen && userToEdit && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
