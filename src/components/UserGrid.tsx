@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import UserCard from './UserCard';
 import api from '../api/axiosInstance';
+import useAuthStore from '../store/authStore';
 
 interface ApiResponseUser {
   id: string;
@@ -23,11 +24,11 @@ const UserGrid: React.FC = () => {
   const [users, setUsers] = useState<UserCardUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { token } = useAuthStore(); // Retrieve the token from Zustand
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('No token found');
         }
@@ -55,7 +56,7 @@ const UserGrid: React.FC = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [token]); // Add token as a dependency to re-fetch if it changes
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;

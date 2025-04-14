@@ -9,6 +9,7 @@ const useAuth = () => {
 
   useEffect(() => {
     if (!token) {
+      console.log('No token found, redirecting to login');
       navigate('/login');
     }
   }, [navigate, token]);

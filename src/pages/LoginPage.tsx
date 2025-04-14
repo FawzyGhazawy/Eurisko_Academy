@@ -13,25 +13,26 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     // Validate inputs
     if (!email || !password) {
       setError('Please fill in all fields.');
       return;
     }
-
+  
     setIsLoading(true);
     setError('');
-
+  
     try {
       const response = await api.post('/api/login', { email, password });
-
+      console.log('Login Response:', response.data); // Log the response
+  
       if (response.data.result.message === 'success') {
         const { accessToken, expiresIn } = response.data.result.data;
-
+  
         // Store token and expiration time in Zustand store
         setAuth({ token: accessToken, expiresAt: expiresIn });
-
+        console.log("token>>>>",accessToken)
         // Redirect to dashboard
         navigate('/dashboard');
       }
