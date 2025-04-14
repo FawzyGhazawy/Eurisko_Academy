@@ -5,37 +5,43 @@ import UserGrid from './components/UserGrid';
 import LoginPage from './pages/LoginPage';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
 import UserProfile from './pages/UserProfile';
-import useThemeStore from './store/themeStore'; 
+import useThemeStore from './store/themeStore';
 
 const App: React.FC = () => {
   const { isDarkMode } = useThemeStore();
 
-  console.log(`[App] Dark Mode Enabled: ${isDarkMode}`); // Debugging
-
+  // Apply or remove the 'dark' class based on the isDarkMode state
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [isDarkMode]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
-        {/* Debug element to confirm Tailwind styles */}
+    <div
+      className={`
+        min-h-screen transition-colors duration-300
+        ${isDarkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'}
+      `}
+    >
+      <BrowserRouter>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<LoginPage />} />
 
-        <BrowserRouter>
-          <Routes>
-            {/* Public Route */}
-            <Route path="/login" element={<LoginPage />} />
+          {/* Authenticated Routes */}
+          <Route path="/dashboard/*" element={<AuthenticatedLayout />}>
+            <Route index element={<UserGrid />} />
+            <Route path="profile/:id" element={<UserProfile />} />
+          </Route>
 
-            {/* Authenticated Routes */}
-            <Route path="/dashboard/*" element={<AuthenticatedLayout />}>
-              <Route index element={<UserGrid />} /> {/* Default route for /dashboard */}
-              <Route path="profile/:id" element={<UserProfile />} /> {/* Nested route */}
-            </Route>
-
-            {/* Redirect to Login if no route matches */}
-            <Route path="*" element={<LoginPage />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+          {/* Redirect to Login if no route matches */}
+          <Route path="*" element={<LoginPage />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 };
 
