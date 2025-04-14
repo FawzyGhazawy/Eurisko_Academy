@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import UserCard from './UserCard';
 import { useOutletContext } from 'react-router-dom';
 import api from '../api/axiosInstance';
+import EditUserForm from '../forms/EditUserForm';
 
 interface ApiResponseUser {
   id: string;
@@ -24,8 +25,10 @@ interface UserCardUser {
 const UserGrid: React.FC = () => {
   const { users, fetchUsers }: { users: ApiResponseUser[]; fetchUsers: () => void } =
     useOutletContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<UserCardUser | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<ApiResponseUser | null>(null);
+  const [userToDelete, setUserToDelete] = useState<ApiResponseUser | null>(null);
 
   // Transform users to include a `name` field
   const transformedUsers = users.map((user) => ({
@@ -36,12 +39,37 @@ const UserGrid: React.FC = () => {
     dob: user.dateOfBirth,
   }));
 
-  // Handle opening the confirmation modal
+  // Handle opening the edit modal
+  const handleEdit = (id: string) => {
+    const user = users.find((u) => u.id === id);
+    if (user) {
+      setUserToEdit(user);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  // Handle updating the user
+  const handleSubmit = async (updatedUser: Partial<ApiResponseUser>) => {
+    if (!userToEdit) return;
+
+    try {
+      await api.put(`/api/users/${userToEdit.id}`, updatedUser);
+      console.log(`User ${userToEdit.firstName} ${userToEdit.lastName || ''} updated successfully`);
+
+      // Refetch users to update the list
+      fetchUsers();
+      setIsEditModalOpen(false); // Close the edit modal
+    } catch (err: any) {
+      console.error('Error updating user:', err.message);
+    }
+  };
+
+  // Handle opening the confirmation modal for deletion
   const handleDelete = (id: string) => {
-    const user = transformedUsers.find((u) => u.id === id);
+    const user = users.find((u) => u.id === id);
     if (user) {
       setUserToDelete(user);
-      setIsModalOpen(true);
+      setIsDeleteModalOpen(true);
     }
   };
 
@@ -51,11 +79,11 @@ const UserGrid: React.FC = () => {
 
     try {
       await api.delete(`/api/users/${userToDelete.id}`);
-      console.log(`User ${userToDelete.name} deleted successfully`);
+      console.log(`User ${userToDelete.firstName} ${userToDelete.lastName || ''} deleted successfully`);
 
       // Refetch users to update the list
-      fetchUsers(); // Use fetchUsers instead of addUser
-      setIsModalOpen(false); // Close the modal
+      fetchUsers();
+      setIsDeleteModalOpen(false); // Close the delete modal
     } catch (err: any) {
       console.error('Error deleting user:', err.message);
     }
@@ -63,16 +91,31 @@ const UserGrid: React.FC = () => {
 
   return (
     <>
-      {/* Confirmation Modal */}
-      {isModalOpen && userToDelete && (
+      {/* Edit Modal */}
+      {isEditModalOpen && userToEdit && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Edit User</h2>
+            <EditUserForm
+              user={userToEdit}
+              onSubmit={handleSubmit}
+              onClose={() => setIsEditModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Deletion */}
+      {isDeleteModalOpen && userToDelete && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md w-full max-w-md">
             <h2 className="text-xl font-bold mb-4 text-black dark:text-white">
-              Are you sure you want to delete user {userToDelete.name}?
+              Are you sure you want to delete user {userToDelete.firstName}{' '}
+              {userToDelete.lastName || ''}?
             </h2>
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsDeleteModalOpen(false)}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-600 dark:text-white"
               >
                 Cancel
@@ -92,7 +135,12 @@ const UserGrid: React.FC = () => {
       <div className="w-full px-6 py-4">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {transformedUsers.map((user) => (
-            <UserCard key={user.id} user={user} onDelete={handleDelete} />
+            <UserCard
+              key={user.id}
+              user={user}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       </div>

@@ -11,10 +11,11 @@ interface User {
 
 interface UserCardProps {
   user: User;
-  onDelete: (id: string) => void; // Add onDelete prop
+  onEdit: (id: string) => void; // Add onEdit prop
+  onDelete: (id: string) => void; // Existing onDelete prop
 }
 
-const UserCard: React.FC<UserCardProps> = ({ user, onDelete }) => {
+const UserCard: React.FC<UserCardProps> = ({ user, onEdit, onDelete }) => {
   const initials = user.name
     ? user.name
         .split(' ')
@@ -37,7 +38,10 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete }) => {
         <p>Date of Birth: {user.dob}</p>
       </div>
       <div className="flex justify-end gap-2">
-        <button className="bg-[#3251D0] dark:bg-blue-600 px-4 py-2 rounded text-white">
+        <button
+          onClick={() => onEdit(user.id)} // Trigger edit
+          className="bg-[#3251D0] dark:bg-blue-600 px-4 py-2 rounded text-white"
+        >
           Edit
         </button>
         <button

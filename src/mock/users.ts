@@ -51,6 +51,29 @@ const mock: MockMethod[] = [
   },
   {
     url: '/api/users/:id',
+    method: 'put',
+    timeout: 2000,
+    response: ({ headers, body, query }: { headers: ApiHeaders; body: any; query: any }) => {
+      if (!validateToken(headers.authorization)) {
+        return getUnAuthorizedResponse();
+      }
+  
+      const userId = query.id;
+      const index = usersData.users.findIndex((user: any) => user.id === userId);
+  
+      if (index === -1) {
+        return generateResponse({ success: false, message: 'User not found' });
+      }
+  
+      // Update the user's data
+      usersData.users[index] = { ...usersData.users[index], ...body };
+      console.log('Mock Server: User updated:', userId);
+  
+      return generateResponse({ success: true, message: 'User updated successfully' });
+    },
+  },
+  {
+    url: '/api/users/:id',
     method: 'delete',
     timeout: 2000,
     response: ({ headers, query }: { headers: ApiHeaders; query: any }) => {
