@@ -1,5 +1,6 @@
 // src/forms/CreateUserForm.tsx
 import React, { useState } from 'react';
+import Button from '../atoms/button/Button'; // Import the reusable Button component
 
 interface CreateUserFormProps {
   onClose: () => void;
@@ -111,19 +112,15 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
 
       {/* Buttons */}
       <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-600 dark:text-white"
-        >
+        {/* Cancel Button */}
+        <Button variant="secondary" size="medium" onClick={onClose}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-white bg-[#3251D0] rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3251D0]"
-        >
+        </Button>
+
+        {/* Create Button */}
+        <Button variant="primary" size="medium" type="submit">
           Create
-        </button>
+        </Button>
       </div>
     </form>
   );

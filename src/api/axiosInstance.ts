@@ -3,7 +3,7 @@ import axios from 'axios';
 import useAuthStore from '../store/authStore';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5173', // Ensure this matches the Vite server's URL
+  baseURL: 'http://localhost:5173', 
   timeout: 5000,
 });
 

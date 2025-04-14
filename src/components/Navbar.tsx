@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import CreateUserForm from '../forms/CreateUserForm';
 import { Link } from 'react-router-dom';
 import useThemeStore from '../store/themeStore';
+import Button from '../atoms/button/Button'; // Import the reusable Button component
 
 interface NavbarProps {
   addUser: (user: any) => void; // Required prop
@@ -13,42 +14,46 @@ const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
 
   const { isDarkMode, toggleDarkMode } = useThemeStore();
 
-  console.log(`[Navbar] Dark Mode Enabled: ${isDarkMode}`); // Debugging
-
   return (
     <div className="w-full bg-[#3251D0] dark:bg-gray-900 flex items-center justify-between p-4">
-      <h1 className="text-lg font-bold text-white">User Management</h1>
+      {/* Styled "User Management" Heading */}
+      <h1 className="text-2xl font-bold text-white tracking-wide">
+        User Management
+      </h1>
+
       <div className="flex items-center space-x-3">
         {/* Open Modal Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-amber-50 dark:bg-yellow-300 px-4 py-2 rounded text-[#3251D0] dark:text-black font-semibold"
-        >
+        <Button variant="secondary" size="medium" onClick={() => setIsModalOpen(true)}>
           Create User
-        </button>
+        </Button>
 
         {/* Logout Button */}
         <Link to="/login">
-          <button className="px-4 py-2 font-semibold text-white bg-red-500 rounded">
+          <Button variant="danger" size="medium">
             Logout
-          </button>
+          </Button>
         </Link>
 
         {/* Dark Mode Toggle */}
         <button
-          onClick={() => {
-            console.log('[Navbar] Toggling Dark Mode'); // Debugging
-            toggleDarkMode();
-          }}
-          className="p-2"
-        >
+          onClick={toggleDarkMode}
+          className={`
+            p-2 rounded-full cursor-pointer transition-colors duration-200
+            ${!isDarkMode && 'hover:bg-gray-200'} // Hover effect in light mode
+            ${isDarkMode && 'hover:bg-gray-700'}
+            group
+          `}
+          >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="white"
-            className="w-5 h-5"
+            stroke={isDarkMode ? '#ffffff' : '#ffffff'} // Default stroke color
+            className={`
+              w-5 h-5 transition-colors duration-200
+              ${!isDarkMode && 'group-hover:stroke-black'} // Stroke changes on hover over the parent
+            `}
           >
             <path
               strokeLinecap="round"
@@ -57,6 +62,7 @@ const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
             />
           </svg>
         </button>
+
       </div>
 
       {/* Modal */}

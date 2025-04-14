@@ -1,8 +1,9 @@
 // src/components/UserCard.tsx
 import React from 'react';
+import Button from '../atoms/button/Button'; // Import the reusable Button component
 
 interface User {
-  id: string; // Add the user's ID
+  id: string;
   name: string;
   email: string;
   status: 'active' | 'locked';
@@ -11,8 +12,8 @@ interface User {
 
 interface UserCardProps {
   user: User;
-  onEdit: (id: string) => void; // Add onEdit prop
-  onDelete: (id: string) => void; // Existing onDelete prop
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user, onEdit, onDelete }) => {
@@ -38,18 +39,15 @@ const UserCard: React.FC<UserCardProps> = ({ user, onEdit, onDelete }) => {
         <p>Date of Birth: {user.dob}</p>
       </div>
       <div className="flex justify-end gap-2">
-        <button
-          onClick={() => onEdit(user.id)} // Trigger edit
-          className="bg-[#3251D0] dark:bg-blue-600 px-4 py-2 rounded text-white"
-        >
+        {/* Edit Button */}
+        <Button variant="primary" size="medium" onClick={() => onEdit(user.id)}>
           Edit
-        </button>
-        <button
-          onClick={() => onDelete(user.id)} // Trigger deletion
-          className="px-4 py-2 text-white bg-red-500 rounded"
-        >
+        </Button>
+
+        {/* Delete Button */}
+        <Button variant="danger" size="medium" onClick={() => onDelete(user.id)}>
           Delete
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import UserCard from './UserCard';
 import { useOutletContext } from 'react-router-dom';
 import api from '../api/axiosInstance';
 import EditUserForm from '../forms/EditUserForm';
+import Button from '../atoms/button/Button';
 
 interface ApiResponseUser {
   id: string;
@@ -120,19 +121,16 @@ const UserGrid: React.FC = () => {
               {userToDelete.lastName || ''}?
             </h2>
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-600 dark:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 text-white bg-red-500 rounded"
-              >
-                Delete
-              </button>
-            </div>
+            {/* Cancel Button */}
+            <Button variant="secondary" size="medium" onClick={() => setIsDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+
+            {/* Delete Button */}
+            <Button variant="danger" size="medium" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
           </div>
         </div>
       )}

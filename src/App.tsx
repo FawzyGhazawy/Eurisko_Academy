@@ -5,7 +5,7 @@ import UserGrid from './components/UserGrid';
 import LoginPage from './pages/LoginPage';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
 import UserProfile from './pages/UserProfile';
-import useThemeStore from './store/themeStore'; // Ensure correct import
+import useThemeStore from './store/themeStore'; 
 
 const App: React.FC = () => {
   const { isDarkMode } = useThemeStore();
