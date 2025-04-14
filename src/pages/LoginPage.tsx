@@ -5,12 +5,14 @@ import api from '../api/axiosInstance';
 import useAuthStore from '../store/authStore';
 import Button from '../atoms/button/Button'; // Import the reusable Button component
 import Input from '../atoms/input/input'; // Import the reusable Input component
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
 
@@ -69,12 +71,20 @@ const LoginPage: React.FC = () => {
           <div className="mb-4 relative">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
             <Input
-              type="password"
+              type={showPassword ? 'text' : 'password'} // Toggle between 'text' and 'password'
               placeholder="Enter your password"
               value={password}
               onChange={(value) => setPassword(value)}
               required
             />
+                          {/* Show/Hide Password Icon */}
+                          <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)} // Toggle showPassword state
+                className="absolute pt-5 padding-top inset-y-0 right-3 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+              </button>
           </div>
 
           {/* Submit Button */}
