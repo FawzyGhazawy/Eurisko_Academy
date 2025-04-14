@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosInstance';
 import useAuthStore from '../store/authStore';
 import Button from '../atoms/button/Button'; // Import the reusable Button component
+import Input from '../atoms/input/input'; // Import the reusable Input component
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -55,24 +56,24 @@ const LoginPage: React.FC = () => {
           {/* Email Field */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-            <input
+            <Input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
               placeholder="Enter your email"
+              value={email}
+              onChange={(value) => setEmail(value)}
+              required
             />
           </div>
 
           {/* Password Field */}
           <div className="mb-4 relative">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-            <input
+            <Input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
               placeholder="Enter your password"
+              value={password}
+              onChange={(value) => setPassword(value)}
+              required
             />
           </div>
 

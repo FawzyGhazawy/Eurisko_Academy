@@ -1,6 +1,7 @@
 // src/forms/EditUserForm.tsx
 import React, { useState } from 'react';
 import Button from '../atoms/button/Button'; // Import the reusable Button component
+import Input from '../atoms/input/input'; // Import the reusable Input component
 
 interface EditUserFormProps {
   user: {
@@ -30,15 +31,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
     dateOfBirth: user.dateOfBirth,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-
-    // Validate the status field
-    if (name === 'status' && !['ACTIVE', 'LOCKED'].includes(value as 'ACTIVE' | 'LOCKED')) {
-      console.error('Invalid status value:', value);
-      return;
-    }
-
+  const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -52,38 +45,35 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
       {/* First Name */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-        <input
+        <Input
           type="text"
-          name="firstName"
+          placeholder="Enter first name"
           value={formData.firstName}
-          onChange={handleChange}
+          onChange={(value) => handleChange('firstName', value)}
           required
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       {/* Last Name */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-        <input
+        <Input
           type="text"
-          name="lastName"
+          placeholder="Enter last name"
           value={formData.lastName}
-          onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
+          onChange={(value) => handleChange('lastName', value)}
         />
       </div>
 
       {/* Email */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-        <input
+        <Input
           type="email"
-          name="email"
+          placeholder="Enter email"
           value={formData.email}
-          onChange={handleChange}
+          onChange={(value) => handleChange('email', value)}
           required
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
         />
       </div>
 
@@ -93,7 +83,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
         <select
           name="status"
           value={formData.status}
-          onChange={handleChange}
+          onChange={(e) => handleChange('status', e.target.value)}
           className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
         >
           <option value="ACTIVE">Active</option>
@@ -104,13 +94,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
       {/* Date of Birth */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
-        <input
+        <Input
           type="date"
-          name="dateOfBirth"
           value={formData.dateOfBirth}
-          onChange={handleChange}
+          onChange={(value) => handleChange('dateOfBirth', value)}
           required
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
         />
       </div>
 
