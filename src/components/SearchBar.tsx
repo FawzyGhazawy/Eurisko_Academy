@@ -1,15 +1,16 @@
-import React from "react";
+import React from 'react';
 
-export const Searchbar = () => {
+const Searchbar: React.FC = () => {
   return (
     <div className="w-full px-6 py-4">
-    <input
-      type="search"
-      name="search"
-      placeholder="Search users..."
-      className="w-full max-w-md px-3 py-2 text-black bg-white border border-gray-400 rounded shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-    />
-
+      <input
+        type="search"
+        name="search"
+        placeholder="Search users..."
+        className="w-full max-w-md px-3 py-2 text-black bg-white border border-gray-400 rounded shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      />
     </div>
   );
 };
+
+export default Searchbar;

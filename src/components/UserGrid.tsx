@@ -1,62 +1,73 @@
-// components/UserGrid.tsx
-import UserCard from "./UserCard";
+// src/components/UserGrid.tsx
+import React, { useEffect, useState } from 'react';
+import UserCard from './UserCard';
+import api from '../api/axiosInstance';
 
-type User = {
+interface ApiResponseUser {
+  id: string;
+  firstName: string;
+  lastName?: string;
+  email: string;
+  status: 'ACTIVE' | 'LOCKED';
+  dateOfBirth: string;
+}
+
+interface UserCardUser {
   name: string;
   email: string;
-  status: "active" | "locked";
+  status: 'active' | 'locked';
   dob: string;
-};
+}
 
-const users: User[] = [
-  {
-    name: "Fawzy Ghazawy",
-    email: "fawzy@example.com",
-    status: "active",
-    dob: "1999-09-15",
-  },
-  {
-    name: "Antonella Doumit",
-    email: "anto@example.com",
-    status: "locked",
-    dob: "1998-11-22",
-  },
-  {
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    status: "locked",
-    dob: "1988-10-22",
-  },
-  {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    status: "active",
-    dob: "1990-05-15",
-  },
-  {
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    status: "active",
-    dob: "1995-02-10",
-  },
-  {
-    name: "David Lee",
-    email: "david.lee@example.com",
-    status: "locked",
-    dob: "1987-07-14",
-  },
-];
+const UserGrid: React.FC = () => {
+  const [users, setUsers] = useState<UserCardUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-const UserGrid = () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token found');
+        }
+
+        const response = await api.get('/api/users', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Transform the API response to match the UserCardUser interface
+        const transformedUsers = response.data.result.data.users.map(
+          (user: ApiResponseUser): UserCardUser => ({
+            name: `${user.firstName} ${user.lastName || ''}`.trim(),
+            email: user.email,
+            status: user.status.toLowerCase() as 'active' | 'locked',
+            dob: user.dateOfBirth,
+          })
+        );
+
+        setUsers(transformedUsers);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
-<div className="w-full px-6 py-4">
-<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    {users.map((user, idx) => (
-      <UserCard key={idx} user={user} />
-    ))}
-  </div>
-</div>
-
+    <div className="w-full px-6 py-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {users.map((user, index) => (
+          <UserCard key={index} user={user} />
+        ))}
+      </div>
+    </div>
   );
 };
 
