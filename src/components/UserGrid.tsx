@@ -1,10 +1,11 @@
 // src/components/UserGrid.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserCard from './UserCard';
 import { useOutletContext } from 'react-router-dom';
 import api from '../api/axiosInstance';
 import EditUserForm from '../forms/EditUserForm';
 import Button from '../atoms/button/Button';
+import Spinner from '../atoms/spinner/spinner'; // Import the reusable Spinner component
 
 interface ApiResponseUser {
   id: string;
@@ -14,7 +15,6 @@ interface ApiResponseUser {
   status: 'ACTIVE' | 'LOCKED';
   dateOfBirth: string;
 }
-
 
 const UserGrid: React.FC = () => {
   const {
@@ -30,6 +30,23 @@ const UserGrid: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<ApiResponseUser | null>(null);
   const [userToDelete, setUserToDelete] = useState<ApiResponseUser | null>(null);
+  const [loading, setLoading] = useState(true); // Add loading state
+
+  // Fetch users when the component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Set loading to true before fetching
+        await fetchUsers(); // Fetch users from the parent context
+      } catch (err: any) {
+        console.error('Error fetching users:', err.message);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   // Transform users to include a `name` field
   const transformedUsers = users.map((user) => ({
@@ -97,7 +114,6 @@ const UserGrid: React.FC = () => {
 
   return (
     <>
-
       {/* Edit Modal */}
       {isEditModalOpen && userToEdit && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -121,36 +137,44 @@ const UserGrid: React.FC = () => {
               {userToDelete.lastName || ''}?
             </h2>
             <div className="flex justify-end gap-2">
-            {/* Cancel Button */}
-            <Button variant="secondary" size="medium" onClick={() => setIsDeleteModalOpen(false)}>
-              Cancel
-            </Button>
+              {/* Cancel Button */}
+              <Button variant="secondary" size="medium" onClick={() => setIsDeleteModalOpen(false)}>
+                Cancel
+              </Button>
 
-            {/* Delete Button */}
-            <Button variant="danger" size="medium" onClick={confirmDelete}>
-              Delete
-            </Button>
-          </div>
+              {/* Delete Button */}
+              <Button variant="danger" size="medium" onClick={confirmDelete}>
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
       {/* User Grid */}
       <div className="w-full px-6 py-4">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
+        {loading ? (
+          // Show spinner while loading
+          <div className="flex items-center justify-center h-48">
+            <Spinner size="large" />
+            <span className="ml-2 text-gray-700 dark:text-gray-300">Loading users...</span>
+          </div>
+        ) : filteredUsers.length > 0 ? (
+          // Display users if available
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {filteredUsers.map((user) => (
               <UserCard
                 key={user.id}
                 user={user}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
-            ))
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-300">No users found.</p>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          // Show "No users found" message if no users are available
+          <p className="text-center text-gray-500 dark:text-gray-300">No users found.</p>
+        )}
       </div>
     </>
   );
