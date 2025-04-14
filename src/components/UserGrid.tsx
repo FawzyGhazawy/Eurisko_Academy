@@ -23,8 +23,15 @@ interface UserCardUser {
 }
 
 const UserGrid: React.FC = () => {
-  const { users, fetchUsers }: { users: ApiResponseUser[]; fetchUsers: () => void } =
-    useOutletContext();
+  const {
+    users,
+    fetchUsers,
+    searchQuery,
+  }: {
+    users: ApiResponseUser[];
+    fetchUsers: () => void;
+    searchQuery: string;
+  } = useOutletContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<ApiResponseUser | null>(null);
@@ -38,6 +45,11 @@ const UserGrid: React.FC = () => {
     status: user.status.toLowerCase() as 'active' | 'locked',
     dob: user.dateOfBirth,
   }));
+
+  // Filter users based on the search query
+  const filteredUsers = transformedUsers.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Handle opening the edit modal
   const handleEdit = (id: string) => {
@@ -134,14 +146,18 @@ const UserGrid: React.FC = () => {
       {/* User Grid */}
       <div className="w-full px-6 py-4">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {transformedUsers.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-500 dark:text-gray-300">No users found.</p>
+          )}
         </div>
       </div>
     </>

@@ -9,6 +9,7 @@ import api from '../api/axiosInstance';
 const AuthenticatedLayout: React.FC = () => {
   const isAuthenticated = useAuth();
   const [users, setUsers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Fetch users from the API
   const fetchUsers = async () => {
@@ -46,11 +47,11 @@ const AuthenticatedLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen text-black bg-white dark:bg-black dark:text-white">
-      {/* Pass the correct addUser function to Navbar */}
       <Navbar addUser={addUser} />
-      <Searchbar />
-      {/* Pass users, addUser, and fetchUsers to child components via context */}
-      <Outlet context={{ users, addUser, fetchUsers }} />
+      {/* Pass searchQuery and setSearchQuery to SearchBar */}
+      <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      {/* Pass users, addUser, fetchUsers, and searchQuery to UserGrid */}
+      <Outlet context={{ users, addUser, fetchUsers, searchQuery }} />
     </div>
   );
 };
