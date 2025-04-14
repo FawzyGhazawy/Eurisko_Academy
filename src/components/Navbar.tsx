@@ -1,9 +1,15 @@
 // src/components/Navbar.tsx
 import React, { useState } from 'react';
+import CreateUserForm from '../forms/CreateUserForm';
 import { Link } from 'react-router-dom';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  addUser: (user: any) => void; // Prop to handle adding a new user
+}
+
+const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
   const [dark, setDark] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const toggleDarkMode = (): void => {
     setDark(!dark);
@@ -14,16 +20,22 @@ const Navbar: React.FC = () => {
     <div className="w-full bg-[#3251D0] dark:bg-gray-900 flex items-center justify-between p-4">
       <h1 className="text-lg font-bold text-white">User Management</h1>
       <div className="flex items-center space-x-3">
-        <Link to="/dashboard">
-          <button className="bg-amber-50 dark:bg-yellow-300 px-4 py-2 rounded text-[#3251D0] dark:text-black font-semibold">
-            Dashboard
-          </button>
-        </Link>
+        {/* Open Modal Button */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-amber-50 dark:bg-yellow-300 px-4 py-2 rounded text-[#3251D0] dark:text-black font-semibold"
+        >
+          Create User
+        </button>
+
+        {/* Logout Button */}
         <Link to="/login">
           <button className="px-4 py-2 font-semibold text-white bg-red-500 rounded">
             Logout
           </button>
         </Link>
+
+        {/* Dark Mode Toggle */}
         <button onClick={toggleDarkMode} className="p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +53,16 @@ const Navbar: React.FC = () => {
           </svg>
         </button>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Create User</h2>
+            <CreateUserForm onClose={() => setIsModalOpen(false)} addUser={addUser} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
