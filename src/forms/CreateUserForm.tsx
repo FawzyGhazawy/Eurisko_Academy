@@ -6,6 +6,8 @@ import Button from '../atoms/button/Button'; // Import the reusable Button compo
 import Input from '../atoms/input/input'; // Import the reusable Input component
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import { useToast } from '../components/Toast'; // Import the custom Toast hook
+import Select from '../atoms/select/Select';
+import { statusOptions } from '../types/statusTypes';
 
 // Define the Zod schema for validation
 const schema = z.object({
@@ -29,10 +31,18 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
   const {
     register,
     handleSubmit,
+    watch, // Use the watch method to get the current value of fields
+    setValue, // Use setValue to update the form state
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      status: 'ACTIVE', // Set a default value for 'status'
+    },
   });
+
+// Watch the 'status' field to get its current value
+const statusValue = watch('status');
 
   // Handle form submission
   const onSubmit = async (data: FormData) => {
@@ -98,16 +108,21 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
       {/* Status */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-        <select
-          {...register('status')}
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
-        >
-          <option value="ACTIVE">Active</option>
-          <option value="LOCKED">Locked</option>
-        </select>
-        {errors.status && (
-          <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>
-        )}
+        <Select
+          size="medium"
+          options={statusOptions} // Use the centralized statusOptions
+          value={statusValue} // Use the watched value of 'status'
+          onChange={(value) => {
+            // Ensure the value is one of the allowed options
+            if (value === 'ACTIVE' || value === 'LOCKED') {
+              setValue('status', value); // Update the form state
+            } else {
+              console.error(`Invalid status value: ${value}`);
+            }
+          }}
+          placeholder="Select a status"
+          error={errors.status?.message}
+        />
       </div>
 
       {/* Buttons */}

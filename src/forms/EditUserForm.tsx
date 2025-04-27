@@ -5,6 +5,8 @@ import * as z from 'zod';
 import Button from '../atoms/button/Button'; // Import the reusable Button component
 import Input from '../atoms/input/input'; // Import the reusable Input component
 import { useToast } from '../components/Toast'; // Import the custom Toast hook
+import { statusOptions } from '../types/statusTypes';
+import Select from '../atoms/select/Select';
 
 // Define the Zod schema for validation
 const schema = z.object({
@@ -34,6 +36,8 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
   const {
     register,
     handleSubmit,
+    watch, // Use the watch method to get the current value of fields
+    setValue, // Use setValue to update the form state
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -45,6 +49,9 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
       dateOfBirth: user.dateOfBirth,
     },
   });
+
+  // Watch the 'status' field to get its current value
+  const statusValue = watch('status');
 
   // Handle form submission
   const handleFormSubmit = async (data: FormData) => {
@@ -109,17 +116,23 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
       {/* Status */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-        <select
-          {...register('status')}
-          className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
-        >
-          <option value="ACTIVE">Active</option>
-          <option value="LOCKED">Locked</option>
-        </select>
-        {errors.status && (
-          <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>
-        )}
+        <Select
+          size="medium"
+          options={statusOptions} // Use the centralized statusOptions
+          value={statusValue} // Use the watched value of 'status'
+          onChange={(value) => {
+            // Ensure the value is one of the allowed options
+            if (value === 'ACTIVE' || value === 'LOCKED') {
+              setValue('status', value); // Update the form state
+            } else {
+              console.error(`Invalid status value: ${value}`);
+            }
+          }}
+          placeholder="Select a status"
+          error={errors.status?.message}
+        />
       </div>
+
 
       {/* Buttons */}
       <div className="flex justify-end gap-2">
