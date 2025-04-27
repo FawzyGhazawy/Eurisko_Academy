@@ -13,8 +13,10 @@ const Input: React.FC<InputProps> = ({
   onChange,
   disabled = false,
   type = 'text',
-  required = false, // Default to false
+  required = false,
   className = '',
+  label,
+  error,
 }) => {
   // Define styles based on the variant
   const variantStyles: Record<NonNullable<InputProps['variant']>, string> = {
@@ -25,15 +27,28 @@ const Input: React.FC<InputProps> = ({
   };
 
   return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
-      disabled={disabled}
-      required={required} // Pass the required prop here
-      className={`${variantStyles[variant]} ${className}`}
-    />
+    <div>
+      {/* Label */}
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {label}
+        </label>
+      )}
+
+      {/* Input Field */}
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
+        required={required}
+        className={`${variantStyles[variant]} ${className}`}
+      />
+
+      {/* Error Message */}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
   );
 };
 

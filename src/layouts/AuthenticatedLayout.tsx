@@ -1,4 +1,3 @@
-// src/layouts/AuthenticatedLayout.tsx
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -14,8 +13,9 @@ const AuthenticatedLayout: React.FC = () => {
   // Fetch users from the API
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/api/users');
-      setUsers(response.data.result.data.users);
+      const response = await api.get('/api/users', { params: { search: searchQuery } });
+      const data = response.data.result.data.users; // Extract the users array
+      setUsers(data);
     } catch (err: any) {
       console.error('Error fetching users:', err.message);
     }
@@ -26,16 +26,13 @@ const AuthenticatedLayout: React.FC = () => {
     if (isAuthenticated) {
       fetchUsers();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, searchQuery]);
 
   // Function to add a new user
   const addUser = async (newUser: any) => {
     try {
-      // Send the new user to the API
       await api.post('/api/users', newUser);
-
-      // Refetch users to update the list
-      fetchUsers();
+      fetchUsers(); // Refetch users to update the list
     } catch (err: any) {
       console.error('Error adding user:', err.message);
     }

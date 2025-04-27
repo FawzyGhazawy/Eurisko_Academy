@@ -1,12 +1,7 @@
 // src/forms/CreateUserForm.tsx
 import React, { useState } from 'react';
-import Button from '../atoms/button/Button'; // Import the reusable Button component
-import Input from '../atoms/input/input'; // Import the reusable Input component
-
-interface CreateUserFormProps {
-  onClose: () => void;
-  addUser: (user: any) => void; // Add the addUser prop
-}
+import Button from '../atoms/button/Button';
+import Input from '../atoms/input/input';
 
 interface FormData {
   firstName: string;
@@ -14,6 +9,11 @@ interface FormData {
   email: string;
   status: 'ACTIVE' | 'LOCKED';
   dateOfBirth: string;
+}
+
+interface CreateUserFormProps {
+  onClose: () => void;
+  addUser: (user: FormData) => void; // Add the addUser prop with proper typing
 }
 
 const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => {
@@ -31,11 +31,9 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       // Call the addUser function to add the new user
       addUser(formData);
-
       // Close the modal
       onClose();
     } catch (err: any) {
@@ -106,7 +104,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end space-x-3">
+      <div className="flex justify-end gap-2">
         {/* Cancel Button */}
         <Button variant="secondary" size="medium" onClick={onClose}>
           Cancel

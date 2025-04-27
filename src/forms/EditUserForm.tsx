@@ -1,24 +1,19 @@
 // src/forms/EditUserForm.tsx
 import React, { useState } from 'react';
-import Button from '../atoms/button/Button'; // Import the reusable Button component
-import Input from '../atoms/input/input'; // Import the reusable Input component
+import Button from '../atoms/button/Button';
+import Input from '../atoms/input/input';
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: 'ACTIVE' | 'LOCKED';
+  dateOfBirth: string;
+}
 
 interface EditUserFormProps {
-  user: {
-    id: string;
-    firstName: string;
-    lastName?: string;
-    email: string;
-    status: 'ACTIVE' | 'LOCKED';
-    dateOfBirth: string;
-  };
-  onSubmit: (updatedUser: Partial<{ 
-    firstName: string; 
-    lastName: string; 
-    email: string; 
-    status: 'ACTIVE' | 'LOCKED'; 
-    dateOfBirth: string; 
-  }>) => void;
+  user: FormData & { id: string };
+  onSubmit: (updatedUser: Partial<FormData>) => void; // Define the onSubmit prop
   onClose: () => void;
 }
 
@@ -37,7 +32,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(formData); // Call the onSubmit function with updated data
   };
 
   return (

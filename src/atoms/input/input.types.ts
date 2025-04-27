@@ -42,4 +42,14 @@ export interface InputProps {
    * Additional class names for custom styling.
    */
   className?: string;
+
+  /**
+   * The label for the input field.
+   */
+  label?: string;
+
+  /**
+   * Error message to display below the input field.
+   */
+  error?: string;
 }
