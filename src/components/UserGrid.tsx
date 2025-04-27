@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import UserCard from './UserCard';
 import { useOutletContext } from 'react-router-dom';
 import api from '../api/axiosInstance';
 import EditUserForm from '../forms/EditUserForm';
 import Button from '../atoms/button/Button';
 import Spinner from '../atoms/spinner/spinner'; // Import the reusable Spinner component
+import Searchbar from './SearchBar';
 
 interface ApiResponseUser {
   id: string;
@@ -19,36 +20,48 @@ const UserGrid: React.FC = () => {
   const {
     users,
     fetchUsers,
-    searchQuery,
   }: {
     users: ApiResponseUser[];
     fetchUsers: () => void;
-    searchQuery: string;
   } = useOutletContext();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<ApiResponseUser | null>(null);
   const [userToDelete, setUserToDelete] = useState<ApiResponseUser | null>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{ message: string; statusCode: number } | null>(null);
+
+  const [userList, setUserList] = useState<ApiResponseUser[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>(''); // Local search query state
+
+  const memoizedFetchUsers = useCallback(fetchUsers, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true); // Set loading to true before fetching
-        await fetchUsers(); // Fetch users from the parent context
-        console.log('Fetched Users:', users); // Log the fetched users
-      } catch (err: any) {
-        console.error('Error fetching users:', err.message);
-      } finally {
-        setLoading(false); // Set loading to false after fetching
+      if (users.length === 0) {
+        try {
+          setLoading(true);
+          await memoizedFetchUsers();
+          setError(null);
+        } catch (err: any) {
+          setError({ message: err.message, statusCode: err.response?.status || 500 });
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
       }
     };
+
     fetchData();
-  }, []); // Empty dependency array ensures this runs only once on mount
-  
-  // Transform users to include a `name` field
-  const transformedUsers = users.map((user) => ({
+  }, [memoizedFetchUsers, users.length]);
+
+  useEffect(() => {
+    setUserList(users);
+  }, [users]);
+
+  const transformedUsers = userList.map((user) => ({
     id: user.id,
     name: `${user.firstName} ${user.lastName || ''}`.trim(),
     email: user.email,
@@ -56,13 +69,23 @@ const UserGrid: React.FC = () => {
     dob: user.dateOfBirth,
   }));
 
-  // Filter users based on the search query
   const filteredUsers = transformedUsers.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <>
+          {/* Search Bar */}
+          <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-500 text-white p-4 rounded mb-4">
+          <p>{error.message}</p>
+          <p>Status Code: {error.statusCode}</p>
+        </div>
+      )}
+
       {/* Edit Modal */}
       {isEditModalOpen && userToEdit && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -71,17 +94,20 @@ const UserGrid: React.FC = () => {
             <EditUserForm
               user={{
                 ...userToEdit,
-                lastName: userToEdit.lastName || '', // Ensure lastName is a string
+                lastName: userToEdit.lastName || '',
               }}
               onSubmit={(updatedUser) => {
-                // Handle updating the user
                 api.put(`/api/users/${userToEdit.id}`, updatedUser)
                   .then(() => {
-                    fetchUsers(); // Refetch users to update the list
-                    setIsEditModalOpen(false); // Close the edit modal
+                    setUserList((prevUsers) =>
+                      prevUsers.map((user) =>
+                        user.id === userToEdit.id ? { ...user, ...updatedUser } : user
+                      )
+                    );
+                    setIsEditModalOpen(false);
                   })
                   .catch((err: any) => {
-                    console.error('Error updating user:', err.message);
+                    setError({ message: err.message, statusCode: err.response?.status || 500 });
                   });
               }}
               onClose={() => setIsEditModalOpen(false)}
@@ -99,22 +125,22 @@ const UserGrid: React.FC = () => {
               {userToDelete.lastName || ''}?
             </h2>
             <div className="flex justify-end gap-2">
-              {/* Cancel Button */}
               <Button variant="secondary" size="medium" onClick={() => setIsDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              {/* Delete Button */}
               <Button
                 variant="danger"
                 size="medium"
                 onClick={() => {
                   api.delete(`/api/users/${userToDelete.id}`)
                     .then(() => {
-                      fetchUsers(); // Refetch users to update the list
-                      setIsDeleteModalOpen(false); // Close the delete modal
+                      setUserList((prevUsers) =>
+                        prevUsers.filter((user) => user.id !== userToDelete.id)
+                      );
+                      setIsDeleteModalOpen(false);
                     })
                     .catch((err: any) => {
-                      console.error('Error deleting user:', err.message);
+                      setError({ message: err.message, statusCode: err.response?.status || 500 });
                     });
                 }}
               >
@@ -128,27 +154,25 @@ const UserGrid: React.FC = () => {
       {/* User Grid */}
       <div className="w-full px-6 py-4">
         {loading ? (
-          // Show spinner while loading
           <div className="flex items-center justify-center h-48">
             <Spinner size="large" />
             <span className="ml-2 text-gray-700 dark:text-gray-300">Loading users...</span>
           </div>
         ) : filteredUsers.length > 0 ? (
-          // Display users if available
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredUsers.map((user) => (
               <UserCard
                 key={user.id}
                 user={user}
                 onEdit={(id) => {
-                  const userToEdit = users.find((u) => u.id === id);
+                  const userToEdit = userList.find((u) => u.id === id);
                   if (userToEdit) {
                     setUserToEdit(userToEdit);
                     setIsEditModalOpen(true);
                   }
                 }}
                 onDelete={(id) => {
-                  const userToDelete = users.find((u) => u.id === id);
+                  const userToDelete = userList.find((u) => u.id === id);
                   if (userToDelete) {
                     setUserToDelete(userToDelete);
                     setIsDeleteModalOpen(true);
@@ -158,7 +182,6 @@ const UserGrid: React.FC = () => {
             ))}
           </div>
         ) : (
-          // Show "No users found" message if no users are available
           <p className="text-center text-gray-500 dark:text-gray-300">No users found.</p>
         )}
       </div>

@@ -1,56 +1,54 @@
-// src/forms/CreateUserForm.tsx
-import React, { useState } from 'react';
-import Button from '../atoms/button/Button';
-import Input from '../atoms/input/input';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import Button from '../atoms/button/Button'; // Import the reusable Button component
+import Input from '../atoms/input/input'; // Import the reusable Input component
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  status: 'ACTIVE' | 'LOCKED';
-  dateOfBirth: string;
-}
+// Define the Zod schema for validation
+const schema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().optional(),
+  email: z.string().email('Invalid email address'),
+  status: z.enum(['ACTIVE', 'LOCKED']),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+});
+
+type FormData = z.infer<typeof schema>;
 
 interface CreateUserFormProps {
   onClose: () => void;
-  addUser: (user: FormData) => void; // Add the addUser prop with proper typing
+  addUser: (user: FormData) => void; // Add the addUser prop
 }
 
 const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => {
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    status: 'ACTIVE',
-    dateOfBirth: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
   });
 
-  const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     try {
-      // Call the addUser function to add the new user
-      addUser(formData);
-      // Close the modal
-      onClose();
+      await addUser(data); // Call the addUser function to add the new user
+      onClose(); // Close the modal after successful submission
     } catch (err: any) {
       console.error('Error creating user:', err.message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* First Name */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
         <Input
           type="text"
           placeholder="Enter first name"
-          value={formData.firstName}
-          onChange={(value) => handleChange('firstName', value)}
+          {...register('firstName')}
+          error={errors.firstName?.message}
           required
         />
       </div>
@@ -61,8 +59,8 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
         <Input
           type="text"
           placeholder="Enter last name"
-          value={formData.lastName}
-          onChange={(value) => handleChange('lastName', value)}
+          {...register('lastName')}
+          error={errors.lastName?.message}
         />
       </div>
 
@@ -72,8 +70,8 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
         <Input
           type="email"
           placeholder="Enter email"
-          value={formData.email}
-          onChange={(value) => handleChange('email', value)}
+          {...register('email')}
+          error={errors.email?.message}
           required
         />
       </div>
@@ -82,14 +80,15 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
         <select
-          name="status"
-          value={formData.status}
-          onChange={(e) => handleChange('status', e.target.value)}
+          {...register('status')}
           className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#3251D0] dark:bg-gray-700 dark:text-white"
         >
           <option value="ACTIVE">Active</option>
           <option value="LOCKED">Locked</option>
         </select>
+        {errors.status && (
+          <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>
+        )}
       </div>
 
       {/* Date of Birth */}
@@ -97,19 +96,18 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
         <Input
           type="date"
-          value={formData.dateOfBirth}
-          onChange={(value) => handleChange('dateOfBirth', value)}
+          {...register('dateOfBirth')}
+          error={errors.dateOfBirth?.message}
           required
         />
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end space-x-3">
         {/* Cancel Button */}
         <Button variant="secondary" size="medium" onClick={onClose}>
           Cancel
         </Button>
-
         {/* Create Button */}
         <Button variant="primary" size="medium" type="submit">
           Create

@@ -14,7 +14,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ searchQuery, setSearchQuery }) =>
         variant="search"
         placeholder="Search users..."
         value={searchQuery}
-        onChange={setSearchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
         type="text"
       />
     </div>

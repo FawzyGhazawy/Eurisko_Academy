@@ -2,7 +2,7 @@
 
 export type InputVariant = 'default' | 'search';
 
-export interface InputProps {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /**
    * The variant of the input (e.g., default, search).
    */
@@ -18,10 +18,6 @@ export interface InputProps {
    */
   value?: string;
 
-  /**
-   * The function to execute when the input value changes.
-   */
-  onChange?: (value: string) => void;
 
   /**
    * Whether the input is disabled.
@@ -52,4 +48,13 @@ export interface InputProps {
    * Error message to display below the input field.
    */
   error?: string;
+
+  /**
+   * React Hook Form props
+   */
+  // onChange?: ((value: string) => void) | ((e: React.ChangeEvent<HTMLInputElement>) => void);
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  ref?: React.Ref<any>;
+  name?: string;
 }

@@ -18,32 +18,42 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     // Validate inputs
     if (!email || !password) {
       setError('Please fill in all fields.');
       return;
     }
-
+  
     setIsLoading(true);
     setError('');
-
+  
     try {
       const response = await api.post('/api/login', { email, password });
       console.log('Login Response:', response.data); // Log the response
-
+  
       if (response.data.result.message === 'success') {
         const { accessToken, expiresIn } = response.data.result.data;
-
+  
         // Store token and expiration time in Zustand store
         setAuth({ token: accessToken, expiresAt: expiresIn });
         console.log("token>>>>", accessToken);
-
+  
         // Redirect to dashboard
         navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.result?.message || 'An error occurred');
+      let errorMessage = 'An error occurred';
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = 'Unauthorized: Invalid email or password.';
+        } else if (err.response.data.result && err.response.data.result.message) {
+          errorMessage = err.response.data.result.message;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +72,7 @@ const LoginPage: React.FC = () => {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(value) => setEmail(value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -74,7 +84,7 @@ const LoginPage: React.FC = () => {
               type={showPassword ? 'text' : 'password'} // Toggle between 'text' and 'password'
               placeholder="Enter your password"
               value={password}
-              onChange={(value) => setPassword(value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
             />
                           {/* Show/Hide Password Icon */}

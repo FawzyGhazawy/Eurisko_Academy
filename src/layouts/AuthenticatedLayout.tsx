@@ -31,8 +31,11 @@ const AuthenticatedLayout: React.FC = () => {
   // Function to add a new user
   const addUser = async (newUser: any) => {
     try {
-      await api.post('/api/users', newUser);
-      fetchUsers(); // Refetch users to update the list
+      const response = await api.post('/api/users', newUser);
+      const addedUser = response.data.result.data.user;
+  
+      // Add the new user to the top of the users array
+      setUsers((prevUsers) => [addedUser, ...prevUsers]);
     } catch (err: any) {
       console.error('Error adding user:', err.message);
     }
