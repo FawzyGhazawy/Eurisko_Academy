@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '../../atoms/button/Button';
 import EditUserForm from '../../forms/EditUserForm';
 import { ApiResponseUser } from './types';
+import { StatusEnum } from '../../types/statusTypes';
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, onClose, user, on
           user={{
             ...user,
             lastName: user.lastName || '',
+            status: user.status as StatusEnum,
           }}
           onSubmit={onSubmit}
           onClose={onClose}

@@ -1,21 +1,17 @@
-// src/types/statusTypes.ts
+// Define the enum for type safety
+export enum StatusEnum {
+  ACTIVE = 'ACTIVE',
+  LOCKED = 'LOCKED',
+}
 
-export interface StatusOption {
-    /**
-     * The value of the status (used internally).
-     */
-    value: string;
-  
-    /**
-     * The display label for the status.
-     */
-    label: string;
-  }
-  
-  /**
-   * A predefined list of status options.
-   */
-  export const statusOptions: StatusOption[] = [
-    { value: 'ACTIVE', label: 'Active' },
-    { value: 'LOCKED', label: 'Locked' },
-  ];
+// Map the enum to an array of objects for UI components
+export const statusOptions = [
+  { value: StatusEnum.ACTIVE, label: 'Active' },
+  { value: StatusEnum.LOCKED, label: 'Locked' },
+];
+
+// Optional: Helper function to get the label for a given status value
+export const getStatusLabel = (status: StatusEnum): string => {
+  const option = statusOptions.find((opt) => opt.value === status);
+  return option?.label || 'Unknown';
+};

@@ -7,14 +7,14 @@ import Input from '../atoms/input/input'; // Import the reusable Input component
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import { useToast } from '../components/Toast'; // Import the custom Toast hook
 import Select from '../atoms/select/Select';
-import { statusOptions } from '../types/statusTypes';
+import { StatusEnum, statusOptions } from '../types/statusTypes';
 
 // Define the Zod schema for validation
 const schema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().optional(),
   email: z.string().email('Invalid email address'),
-  status: z.enum(['ACTIVE', 'LOCKED']),
+  status: z.nativeEnum(StatusEnum), // Use the enum for validation
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
 });
 
@@ -37,7 +37,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      status: 'ACTIVE', // Set a default value for 'status'
+      status: StatusEnum.ACTIVE, // Set a default value for 'status'
     },
   });
 
@@ -109,20 +109,19 @@ const statusValue = watch('status');
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
         <Select
-          size="medium"
-          options={statusOptions} // Use the centralized statusOptions
-          value={statusValue} // Use the watched value of 'status'
-          onChange={(value) => {
-            // Ensure the value is one of the allowed options
-            if (value === 'ACTIVE' || value === 'LOCKED') {
-              setValue('status', value); // Update the form state
-            } else {
-              console.error(`Invalid status value: ${value}`);
-            }
-          }}
-          placeholder="Select a status"
-          error={errors.status?.message}
-        />
+            size="medium"
+            options={statusOptions}
+            value={statusValue}
+            onChange={(value) => {
+              if (value === StatusEnum.ACTIVE || value === StatusEnum.LOCKED) {
+                setValue('status', value); // Update the form state
+              } else {
+                console.error(`Invalid status value: ${value}`);
+              }
+            }}
+            placeholder="Select a status"
+            error={errors.status?.message}
+          />
       </div>
 
       {/* Buttons */}
