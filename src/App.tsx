@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; // Optional: For debugging
-import UserGrid from './components/UserGrid';
+// import UserGrid from './components/UserGrid';
+import UserGrid from './components/UserGrid/UserGrid';
 import LoginPage from './pages/LoginPage';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
 import UserProfile from './pages/UserProfile';
