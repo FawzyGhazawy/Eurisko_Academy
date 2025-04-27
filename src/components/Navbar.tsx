@@ -65,7 +65,12 @@ const Navbar: React.FC<NavbarProps> = ({ addUser }) => {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Create User</h2>
-        <CreateUserForm onClose={() => setIsModalOpen(false)} addUser={addUser} />
+        <CreateUserForm
+              onClose={() => setIsModalOpen(false)}
+              addUser={async (user) => {
+                await addUser(user); // Ensure the function returns a Promise<void>
+              }}
+            />      
       </div>
     </div>
   )}

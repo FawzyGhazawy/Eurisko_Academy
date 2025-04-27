@@ -6,6 +6,7 @@ import EditUserForm from '../forms/EditUserForm';
 import Button from '../atoms/button/Button';
 import Spinner from '../atoms/spinner/spinner'; // Import the reusable Spinner component
 import Searchbar from './SearchBar';
+import { useToast } from '../components/Toast'; // Import the custom Toast hook
 
 interface ApiResponseUser {
   id: string;
@@ -36,6 +37,7 @@ const UserGrid: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>(''); // Local search query state
 
   const memoizedFetchUsers = useCallback(fetchUsers, []);
+  const { showToast } = useToast(); // Initialize the custom Toast hook
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,9 +77,9 @@ const UserGrid: React.FC = () => {
 
   return (
     <>
-          {/* Search Bar */}
-          <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-          
+      {/* Search Bar */}
+      <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
       {/* Error Display */}
       {error && (
         <div className="bg-red-500 text-white p-4 rounded mb-4">
@@ -97,7 +99,7 @@ const UserGrid: React.FC = () => {
                 lastName: userToEdit.lastName || '',
               }}
               onSubmit={(updatedUser) => {
-                api.put(`/api/users/${userToEdit.id}`, updatedUser)
+                return api.put(`/api/users/${userToEdit.id}`, updatedUser) // Explicitly return the Promise
                   .then(() => {
                     setUserList((prevUsers) =>
                       prevUsers.map((user) =>
@@ -108,6 +110,7 @@ const UserGrid: React.FC = () => {
                   })
                   .catch((err: any) => {
                     setError({ message: err.message, statusCode: err.response?.status || 500 });
+                    throw err; // Ensure the error propagates up
                   });
               }}
               onClose={() => setIsEditModalOpen(false)}
@@ -138,9 +141,11 @@ const UserGrid: React.FC = () => {
                         prevUsers.filter((user) => user.id !== userToDelete.id)
                       );
                       setIsDeleteModalOpen(false);
+                      showToast(`User ${userToDelete.firstName} deleted successfully!`, 'success'); // Show success toast
                     })
                     .catch((err: any) => {
                       setError({ message: err.message, statusCode: err.response?.status || 500 });
+                      showToast('Failed to delete user. Please try again.', 'error'); // Show error toast
                     });
                 }}
               >

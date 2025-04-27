@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Button from '../atoms/button/Button'; // Import the reusable Button component
 import Input from '../atoms/input/input'; // Import the reusable Input component
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useToast } from '../components/Toast'; // Import the custom Toast hook
 
 // Define the Zod schema for validation
 const schema = z.object({
@@ -18,10 +20,12 @@ type FormData = z.infer<typeof schema>;
 
 interface CreateUserFormProps {
   onClose: () => void;
-  addUser: (user: FormData) => void; // Add the addUser prop
+  addUser: (user: FormData) => Promise<void>; // Add the addUser prop
 }
 
 const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => {
+  const navigate = useNavigate(); // Initialize useNavigate for redirection
+  const { showToast } = useToast(); // Initialize the custom Toast hook
   const {
     register,
     handleSubmit,
@@ -30,11 +34,15 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
     resolver: zodResolver(schema),
   });
 
+  // Handle form submission
   const onSubmit = async (data: FormData) => {
     try {
       await addUser(data); // Call the addUser function to add the new user
+      showToast('User created successfully!', 'success'); // Show success toast
       onClose(); // Close the modal after successful submission
+      navigate('/dashboard'); // Redirect to the dashboard
     } catch (err: any) {
+      showToast('Failed to create user. Please try again.', 'error'); // Show error toast
       console.error('Error creating user:', err.message);
     }
   };
@@ -76,6 +84,17 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
         />
       </div>
 
+      {/* Date of Birth */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
+        <Input
+          type="date"
+          {...register('dateOfBirth')}
+          error={errors.dateOfBirth?.message}
+          required
+        />
+      </div>
+
       {/* Status */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
@@ -89,17 +108,6 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onClose, addUser }) => 
         {errors.status && (
           <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>
         )}
-      </div>
-
-      {/* Date of Birth */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
-        <Input
-          type="date"
-          {...register('dateOfBirth')}
-          error={errors.dateOfBirth?.message}
-          required
-        />
       </div>
 
       {/* Buttons */}

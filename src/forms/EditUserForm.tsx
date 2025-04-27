@@ -1,10 +1,10 @@
-// src/forms/EditUserForm.tsx
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import Button from '../atoms/button/Button';
-import Input from '../atoms/input/input';
+import Button from '../atoms/button/Button'; // Import the reusable Button component
+import Input from '../atoms/input/input'; // Import the reusable Input component
+import { useToast } from '../components/Toast'; // Import the custom Toast hook
 
 // Define the Zod schema for validation
 const schema = z.object({
@@ -19,16 +19,18 @@ type FormData = z.infer<typeof schema>;
 
 interface EditUserFormProps {
   user: FormData & { id: string };
-  onSubmit: (updatedUser: Partial<FormData>) => void;
+  onSubmit: (updatedUser: Partial<FormData>) => Promise<void>; // Ensure onSubmit returns a promise
   onClose: () => void;
 }
 
 const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) => {
+  const { showToast } = useToast(); // Initialize the custom Toast hook
   const normalizeStatus = (status: string): 'ACTIVE' | 'LOCKED' => {
     if (status.toUpperCase() === 'ACTIVE') return 'ACTIVE';
     if (status.toUpperCase() === 'LOCKED') return 'LOCKED';
     throw new Error(`Invalid status: ${status}`);
   };
+
   const {
     register,
     handleSubmit,
@@ -44,10 +46,16 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
     },
   });
 
-
-  const handleFormSubmit = (data: FormData) => {
-    onSubmit(data); // You can pass the full data or pick only modified fields
-    onClose(); // Close after submission if needed
+  // Handle form submission
+  const handleFormSubmit = async (data: FormData) => {
+    try {
+      await onSubmit(data); // Call the onSubmit function to update the user
+      showToast('User updated successfully!', 'success'); // Show success toast
+      onClose(); // Close the modal after successful submission
+    } catch (err: any) {
+      showToast('Failed to update user. Please try again.', 'error'); // Show error toast
+      console.error('Error updating user:', err.message);
+    }
   };
 
   return (
@@ -87,6 +95,17 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
         />
       </div>
 
+      {/* Date of Birth */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
+        <Input
+          type="date"
+          {...register('dateOfBirth')}
+          error={errors.dateOfBirth?.message}
+          required
+        />
+      </div>
+
       {/* Status */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
@@ -102,23 +121,13 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
         )}
       </div>
 
-      {/* Date of Birth */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
-        <Input
-          type="date"
-          {...register('dateOfBirth')}
-          error={errors.dateOfBirth?.message}
-          required
-        />
-      </div>
-
       {/* Buttons */}
       <div className="flex justify-end gap-2">
+        {/* Cancel Button */}
         <Button variant="secondary" size="medium" onClick={onClose}>
           Cancel
         </Button>
-
+        {/* Save Button */}
         <Button variant="primary" size="medium" type="submit">
           Save
         </Button>

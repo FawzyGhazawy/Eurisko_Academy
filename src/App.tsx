@@ -7,6 +7,8 @@ import LoginPage from './pages/LoginPage';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
 import UserProfile from './pages/UserProfile';
 import useThemeStore from './store/themeStore';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -52,7 +54,18 @@ const App: React.FC = () => {
             {/* Redirect to Login if no route matches */}
             <Route path="*" element={<LoginPage />} />
           </Routes>
+          <ToastContainer />
         </BrowserRouter>
+         {/* Custom Toast Container */}
+         <div className="fixed top-[150px] left-0 right-0 z-50">
+          <ToastContainer
+            position="top-center" // Use top-center to center the toasts horizontally
+            limit={3} // Limit the number of toasts displayed at once
+            style={{
+              maxWidth: '400px', // Optional: Set a max-width for the toasts
+            }}
+          />
+        </div>
       </div>
     </QueryClientProvider>
   );
