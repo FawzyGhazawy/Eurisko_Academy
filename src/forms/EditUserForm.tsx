@@ -7,30 +7,9 @@ import Input from '../atoms/input/input'; // Import the reusable Input component
 import { useToast } from '../components/Toast'; // Import the custom Toast hook
 import { StatusEnum, statusOptions } from '../types/statusTypes';
 import Select from '../atoms/select/Select';
+import { userSchema, FormData } from '../schema/userSchema';
 
-// Define the Zod schema for validation
-const schema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().optional(),
-  email: z.string().email('Invalid email address'),
-  status: z.nativeEnum(StatusEnum), // Use the enum for validation
-  dateOfBirth: z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-  .refine(
-    (dob) => {
-      const dobDate = new Date(dob);
-      const currentDate = new Date();
-      const minDate = new Date('1900-01-01');
 
-      return dobDate <= currentDate && dobDate >= minDate;
-    },
-    {
-      message: 'Date of birth must be between January 1, 1900, and today.',
-    }
-  ),});
-
-type FormData = z.infer<typeof schema>;
 
 interface EditUserFormProps {
   user: FormData & { id: string };
@@ -53,7 +32,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSubmit, onClose }) 
     setValue, // Use setValue to update the form state
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(userSchema),
     defaultValues: {
       firstName: user.firstName,
       lastName: user.lastName,

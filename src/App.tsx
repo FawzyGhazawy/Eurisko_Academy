@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; // Optional: For debugging
-// import UserGrid from './components/UserGrid';
-import UserGrid from './components/UserGrid/UserGrid';
-import LoginPage from './pages/LoginPage';
-import AuthenticatedLayout from './layouts/AuthenticatedLayout';
-import UserProfile from './pages/UserProfile';
-import useThemeStore from './store/themeStore';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useThemeStore from './store/themeStore';
+import Router from './routes/router'; // Import the Router component
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -42,23 +38,13 @@ const App: React.FC = () => {
         `}
       >
         <BrowserRouter>
-          <Routes>
-            {/* Public Route */}
-            <Route path="/login" element={<LoginPage />} />
-  
-            {/* Authenticated Routes */}
-            <Route path="/dashboard/*" element={<AuthenticatedLayout />}>
-              <Route index element={<UserGrid />} />
-              <Route path="profile/:id" element={<UserProfile />} />
-            </Route>
-  
-            {/* Redirect to Login if no route matches */}
-            <Route path="*" element={<LoginPage />} />
-          </Routes>
+          {/* Render the Router component */}
+          <Router />
           <ToastContainer />
         </BrowserRouter>
-         {/* Custom Toast Container */}
-         <div className="fixed top-[150px] left-0 right-0 z-50">
+
+        {/* Custom Toast Container */}
+        <div className="fixed top-[150px] left-0 right-0 z-50">
           <ToastContainer
             position="top-center" // Use top-center to center the toasts horizontally
             limit={3} // Limit the number of toasts displayed at once
@@ -68,6 +54,8 @@ const App: React.FC = () => {
           />
         </div>
       </div>
+      {/* Optional: React Query Devtools */}
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 };
